@@ -11,8 +11,8 @@ mongoose
   .catch((e) => console.log(`failed to connect to MongoDB\n${e.message}`));
 
 const tutorialSchema = mongoose.Schema({
-  title: String,
-  connect: String,
+  title: { type: String, default: "No title" },
+  content: { type: String, default: "Empty" },
   published: { type: Boolean, default: false },
 });
 

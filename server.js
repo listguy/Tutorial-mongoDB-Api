@@ -21,6 +21,10 @@ app.get("/api/tutorials", (req, res) => {
   Tutorial.find({}).then((tutorials) => res.json(tutorials));
 });
 
+app.get("/api/tutorials/published", (req, res) => {
+  Tutorial.find({ published: true }).then((results) => res.json(results));
+});
+
 app.get("/api/tutorials/:id", (req, res) => {
   Tutorial.findById(req.params.id).then((tutorial) => res.json(tutorial));
 });
@@ -46,9 +50,9 @@ app.put("/api/tutorials/:id", (req, res) => {
     published: body.published,
   };
 
-  Tutorial.findByIdAndUpdate(req.params.id, updatedTuto).then((ut) =>
-    res.json(ut)
-  );
+  Tutorial.findByIdAndUpdate(req.params.id, updatedTuto, {
+    new: true,
+  }).then((ut) => res.json(ut));
 });
 
 app.delete("/api/tutorials/:id", (req, res) => {
@@ -56,20 +60,16 @@ app.delete("/api/tutorials/:id", (req, res) => {
 });
 
 app.delete("/api/tutorials", (req, res) => {
-  Tutorial.remove({}).then(res.status(204).end());
+  Tutorial.deleteMany({}).then(res.status(204).end());
 });
 
-app.get("/api/tutorials/published", (req, res) => {
-  Tutorial.find({ published: true }).then((results) => res.json(results));
-});
+app.get("/api/tutorialsByTitle", (req, res) => {
+  const title = req.query.title;
 
-app.get("/api/tutorials?title", async (req, res) => {
-  const searchParam = req.query.params;
   try {
-    const tutos = await Tutorial.find({});
-
-    const filtered = tutos.filter((tuto) => tuto.title.includes(searchParam));
-    res.json(filtered);
+    Tutorial.find({ title: { $regex: `.*${title}.*` } }).then((results) =>
+      res.json(results)
+    );
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
