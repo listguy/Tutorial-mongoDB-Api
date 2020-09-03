@@ -7,18 +7,11 @@ const PORT = process.env.PORT || 4000;
 const app = new express();
 app.use(express.json());
 
-app.post("/api/post", (req, res) => {
-  const newProduct = new Product({
-    name: req.body.name,
-  });
-  newProduct.save().then((d) => {
-    res.status(200).json(d);
-  });
-});
-
 //Homework methods
 app.get("/api/tutorials", (req, res) => {
-  Tutorial.find({}).then((tutorials) => res.json(tutorials));
+  Tutorial.find({
+    title: { $regex: `.*${req.query.title ? req.query.title : ""}.*` },
+  }).then((results) => res.json(results));
 });
 
 app.get("/api/tutorials/published", (req, res) => {
@@ -61,18 +54,6 @@ app.delete("/api/tutorials/:id", (req, res) => {
 
 app.delete("/api/tutorials", (req, res) => {
   Tutorial.deleteMany({}).then(res.status(204).end());
-});
-
-app.get("/api/tutorialsByTitle", (req, res) => {
-  const title = req.query.title;
-
-  try {
-    Tutorial.find({ title: { $regex: `.*${title}.*` } }).then((results) =>
-      res.json(results)
-    );
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
 });
 
 app.listen(PORT, () => {
